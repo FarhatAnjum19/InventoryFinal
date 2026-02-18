@@ -7,8 +7,24 @@ const inventoryRoutes = require("./routes/inventory.routes");
 function createApp() {
   const app = express();
 
-  const corsOrigin = process.env.CORS_ORIGIN;
-  app.use(cors(corsOrigin ? { origin: corsOrigin } : {}));
+  const corsOrigin = process.env.CORS_ORIGIN || "";
+  const allowedOrigins = corsOrigin
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // allow non-browser or same-origin requests (e.g., server-to-server, Postman)
+        if (!origin) return callback(null, true);
+        // if no origins configured, allow all
+        if (allowedOrigins.length === 0) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error("Not allowed by CORS"));
+      },
+    })
+  );
   app.use(express.json());
 
   app.get("/", (req, res) => {
