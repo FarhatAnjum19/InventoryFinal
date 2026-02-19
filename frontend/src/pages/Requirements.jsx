@@ -19,10 +19,7 @@ const Requirements = () => {
       setRequirements([]);
       return;
     }
-    const now = Date.now();
-    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-    const recent = (res.data || []).filter((r) => now - (r.timestamp || 0) < sevenDaysInMs);
-    setRequirements(recent);
+    setRequirements(Array.isArray(res.data) ? res.data : []);
   };
 
   useEffect(() => {

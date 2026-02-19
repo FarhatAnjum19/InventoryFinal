@@ -195,7 +195,7 @@ router.post("/history", async (req, res) => {
       const requirementItems = cleanedItems
         .filter((it) => {
           const num = parseFloat(it.requirement);
-          return Number.isFinite(num) && num < 10;
+          return Number.isFinite(num) && num < 5;
         })
         .map((it) => ({ name: it.name, requirement: it.requirement ? String(it.requirement) : "" }));
 
@@ -204,7 +204,6 @@ router.post("/history", async (req, res) => {
           { dateOnly },
           {
             $set: { date, dateOnly, timestamp, items: requirementItems },
-            $setOnInsert: { createdAt: new Date(), updatedAt: new Date() },
           },
           { upsert: true }
         );
@@ -254,7 +253,7 @@ router.put("/history/:id", async (req, res) => {
       const reqItems = (updated.items || [])
         .filter((it) => {
           const num = parseFloat(it.requirement);
-          return Number.isFinite(num) && num < 10;
+          return Number.isFinite(num) && num < 5;
         })
         .map((it) => ({ name: it.name, requirement: it.requirement ? String(it.requirement) : "" }));
 
@@ -263,7 +262,6 @@ router.put("/history/:id", async (req, res) => {
           { dateOnly: updated.dateOnly },
           {
             $set: { date: updated.date, dateOnly: updated.dateOnly, timestamp: updated.timestamp || Date.now(), items: reqItems },
-            $setOnInsert: { createdAt: new Date(), updatedAt: new Date() },
           },
           { upsert: true }
         );
