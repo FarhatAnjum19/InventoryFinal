@@ -1,6 +1,41 @@
 import { useEffect, useMemo, useState } from "react";
-import { getCategories, saveHistoryRecord, syncCategoriesFromServer } from "../data/inventoryStore";
+import { fetchHistoryRecords, getCategories, saveHistoryRecord, syncCategoriesFromServer } from "../data/inventoryStore";
 import { toast } from "react-toastify";
+
+function parseDateOnly(dateOnly) {
+  const [day, month, year] = String(dateOnly || "").split("/").map(Number);
+  if (!day || !month || !year) return Number.NaN;
+  const dt = new Date(year, month - 1, day);
+  return Number.isNaN(dt.getTime()) ? Number.NaN : dt.getTime();
+}
+
+function buildCarryForwardMap(history, todayDateOnly) {
+  const todayTs = parseDateOnly(todayDateOnly);
+  if (!Array.isArray(history) || !Number.isFinite(todayTs)) return new Map();
+
+  let latestPrev = null;
+  for (const rec of history) {
+    const recTs = parseDateOnly(rec?.dateOnly);
+    if (!Number.isFinite(recTs) || recTs >= todayTs) continue;
+    if (!latestPrev || recTs > parseDateOnly(latestPrev.dateOnly) || (recTs === parseDateOnly(latestPrev.dateOnly) && (rec.timestamp || 0) > (latestPrev.timestamp || 0))) {
+      latestPrev = rec;
+    }
+  }
+
+  if (!latestPrev || !Array.isArray(latestPrev.items)) return new Map();
+
+  const carryMap = new Map();
+  for (const item of latestPrev.items) {
+    const name = String(item?.name || "").trim();
+    if (!name) continue;
+    carryMap.set(name, {
+      opening: item?.closing ? String(item.closing) : "",
+      purchase: item?.requirement ? String(item.requirement) : "",
+    });
+  }
+
+  return carryMap;
+}
 
 const Inventory = () => {
   const [categories, setCategories] = useState(() => getCategories());
@@ -9,28 +44,44 @@ const Inventory = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const buildRows = (cats) =>
+    const buildRows = (cats, carryMap = new Map()) =>
       cats.flatMap((c) => c.items).map((name, index) => ({
         id: index,
         name,
-        purchase: "",
-        opening: "",
+        purchase: carryMap.get(name)?.purchase || "",
+        opening: carryMap.get(name)?.opening || "",
         closing: "",
         requirement: "",
       }));
 
-    const refresh = () => {
+    const refresh = async () => {
       const merged = getCategories();
+      const todayDateOnly = new Date().toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      let carryMap = new Map();
+      const historyRes = await fetchHistoryRecords();
+      if (historyRes.success) {
+        carryMap = buildCarryForwardMap(historyRes.data, todayDateOnly);
+      }
+
       setCategories(merged);
-      setItems(buildRows(merged));
+      setItems(buildRows(merged, carryMap));
     };
 
-    refresh();
+    void refresh();
     void syncCategoriesFromServer();
 
-    window.addEventListener("inventoryCategoriesChanged", refresh);
+    const onCategoriesChanged = () => {
+      void refresh();
+    };
+
+    window.addEventListener("inventoryCategoriesChanged", onCategoriesChanged);
     return () => {
-      window.removeEventListener("inventoryCategoriesChanged", refresh);
+      window.removeEventListener("inventoryCategoriesChanged", onCategoriesChanged);
     };
   }, []);
 
