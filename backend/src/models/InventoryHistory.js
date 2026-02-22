@@ -22,7 +22,9 @@ const inventoryHistorySchema = new mongoose.Schema(
 );
 
 inventoryHistorySchema.index({ timestamp: -1 });
-// Auto-delete history documents 7 days after creation.
-inventoryHistorySchema.index({ createdAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
+inventoryHistorySchema.index({ dateOnly: 1, timestamp: -1 });
+inventoryHistorySchema.index({ "items.name": 1 });
+// Auto-delete history documents 4 days after creation.
+inventoryHistorySchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 * 24 * 60 * 60 });
 
 module.exports = mongoose.model("InventoryHistory", inventoryHistorySchema);

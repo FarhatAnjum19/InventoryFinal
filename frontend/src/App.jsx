@@ -1,19 +1,24 @@
-import React, { useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 
-import Home from "./pages/Home";
-import Inventory from "./pages/Inventory";
-import TodayInventory from "./pages/TodayInventory";
-import AddInventory from "./pages/AddInventory";
-import History from "./pages/History";
-import Reports from "./pages/Reports";
-import Login from "./pages/Login";
-import Requirements from "./pages/Requirements";
 import { getCurrentUser } from "./data/auth";
 import { syncCategoriesFromServer } from "./data/inventoryStore";
+
+const Home = lazy(() => import("./pages/Home"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const TodayInventory = lazy(() => import("./pages/TodayInventory"));
+const AddInventory = lazy(() => import("./pages/AddInventory"));
+const History = lazy(() => import("./pages/History"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Login = lazy(() => import("./pages/Login"));
+const Requirements = lazy(() => import("./pages/Requirements"));
+
+function PageLoader() {
+  return <div className="text-sm text-gray-300">Loading...</div>;
+}
 
 function AppRoutes() {
   const location = useLocation();
@@ -30,10 +35,12 @@ function AppRoutes() {
     if (user) return <Navigate to="/" replace />;
 
     return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -45,16 +52,18 @@ function AppRoutes() {
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="flex-1 p-6">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/inventory/add" element={<AddInventory />} />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/inventory/add" element={<AddInventory />} />
               <Route path="/requirements" element={<Requirements />} />
-            <Route path="/today" element={<TodayInventory />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              <Route path="/today" element={<TodayInventory />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </div>
       </div>
     </div>

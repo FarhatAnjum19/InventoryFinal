@@ -22,7 +22,7 @@ function uniqueTrimmed(items) {
 
 router.get("/categories", async (req, res) => {
   try {
-    const categories = await InventoryCategory.find({}, { _id: 0, title: 1, items: 1 }).sort({ title: 1 });
+    const categories = await InventoryCategory.find({}, { _id: 0, title: 1, items: 1 }).sort({ title: 1 }).lean();
     return res.json({ success: true, data: categories });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Failed to fetch categories", error: error.message });
@@ -36,7 +36,7 @@ router.post("/categories", async (req, res) => {
       return res.status(400).json({ success: false, message: "title is required" });
     }
 
-    const existing = await InventoryCategory.findOne({ title });
+    const existing = await InventoryCategory.exists({ title });
     if (existing) {
       return res.status(409).json({ success: false, message: "Category already exists" });
     }
@@ -146,7 +146,7 @@ router.delete("/categories", async (req, res) => {
       return res.status(400).json({ success: false, message: "title is required" });
     }
 
-    const category = await InventoryCategory.findOne({ title });
+    const category = await InventoryCategory.findOne({ title }, { _id: 0, items: 1 }).lean();
     const itemsToDelete = category?.items || [];
 
     await InventoryCategory.deleteOne({ title });
@@ -164,6 +164,7 @@ router.delete("/categories", async (req, res) => {
 router.get("/history", async (req, res) => {
   try {
     const history = await InventoryHistory.find({})
+      .select({ date: 1, dateOnly: 1, timestamp: 1, items: 1 })
       .sort({ timestamp: 1 })
       .lean();
 

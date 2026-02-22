@@ -19,7 +19,7 @@ const inventoryRequirementSchema = new mongoose.Schema(
 );
 
 inventoryRequirementSchema.index({ dateOnly: 1 }, { unique: true });
-// Auto-delete requirement documents 7 days after creation.
-inventoryRequirementSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
+// Auto-delete requirement documents 4 days after creation.
+inventoryRequirementSchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 * 24 * 60 * 60 });
 
 module.exports = mongoose.model("InventoryRequirement", inventoryRequirementSchema);
