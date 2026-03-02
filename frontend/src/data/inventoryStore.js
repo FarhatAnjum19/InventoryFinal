@@ -1,6 +1,8 @@
 import { getAuthToken, logout } from "./auth";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const NORMALIZED_API_BASE = String(RAW_API_BASE || "").trim().replace(/\/+$/, "");
+const API_BASE = /\/api$/i.test(NORMALIZED_API_BASE) ? NORMALIZED_API_BASE : `${NORMALIZED_API_BASE}/api`;
 const STORAGE_KEY = "inventory_additions_v1";
 let hasTriedServerSync = false;
 
@@ -53,7 +55,7 @@ async function inventoryApi(path, options = {}) {
     if (res.status === 401) {
       logout();
       try {
-        window.location.href = "/login";
+        window.location.hash = "#/login";
       } catch {
         // ignore
       }

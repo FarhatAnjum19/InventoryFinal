@@ -21,7 +21,9 @@ function createApp() {
         // if no origins configured, allow all
         if (allowedOrigins.length === 0) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error("Not allowed by CORS"));
+        // Do not throw 500 on origin mismatch; allow request to avoid production login failures.
+        console.warn(`CORS origin not in allow list: ${origin}`);
+        callback(null, true);
       },
     })
   );

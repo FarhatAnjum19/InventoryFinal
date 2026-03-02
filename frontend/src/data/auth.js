@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const NORMALIZED_API_BASE = String(RAW_API_BASE || "").trim().replace(/\/+$/, "");
+const API_BASE = /\/api$/i.test(NORMALIZED_API_BASE) ? NORMALIZED_API_BASE : `${NORMALIZED_API_BASE}/api`;
 
 function storeUser(user) {
   const payload = {
