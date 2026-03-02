@@ -30,7 +30,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-red-500 mb-4">Chicken Hut Daily Stock Register</h1>
+      <h1 className="text-3xl font-bold text-red-500 mb-4">Tandoori Wings Daily Stock Register</h1>
 
       <p className="text-gray-300 text-lg mb-6 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-red-400" aria-hidden="true">

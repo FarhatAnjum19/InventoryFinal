@@ -54,7 +54,7 @@ const Header = () => {
 
   return (
     <header className="flex justify-between items-center px-8 py-4 border-b border-gray-800 bg-black">
-      <h1 className="text-2xl font-semibold text-red-500">Chicken Hut Inventory</h1>
+      <h1 className="text-2xl font-semibold text-red-500">Tandoori Wings Inventory</h1>
 
       <div className="flex items-center gap-4">
         <div className="text-gray-300 text-sm bg-gray-900 px-4 py-2 rounded-md border border-gray-700">

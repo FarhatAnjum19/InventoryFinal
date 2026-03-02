@@ -48,7 +48,7 @@ const Login = () => {
           <div className="absolute inset-0 bg-center bg-cover" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1400&q=80')" }} />
           <div className="absolute inset-0 bg-black/35" />
           <div className="relative z-10 h-full px-12 py-14 flex flex-col justify-between text-white">
-            <h1 className="text-4xl font-extrabold leading-tight tracking-wide">CHICKEN HUT</h1>
+            <h1 className="text-4xl font-extrabold leading-tight tracking-wide">TANDOORI WINGS</h1>
             <div className="pb-10">
               <p className="text-xl text-white/90">Perfect Place to</p>
               <p className="text-2xl font-semibold">Get Delicious Foods</p>

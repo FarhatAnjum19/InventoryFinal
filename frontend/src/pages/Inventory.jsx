@@ -142,7 +142,7 @@ const Inventory = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-red-500 mb-6">Chicken Hut Daily Stock Register</h1>
+      <h1 className="text-2xl font-bold text-red-500 mb-6">Tandoori Wings Daily Stock Register</h1>
 
       {apiError && <div className="mb-4 text-sm text-red-400">{apiError}</div>}
 

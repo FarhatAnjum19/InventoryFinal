@@ -101,11 +101,11 @@ const Sidebar = () => {
       <div className="flex items-center gap-3 mb-10">
         <img
           src="/logo.png"
-          alt="Chicken Hut Logo"
+          alt="Tandoori Wings Logo"
           className="w-12 h-12 object-contain rounded-full"
         />
         <h1 className="text-xl font-bold text-red-500">
-          Chicken Hut
+          Tandoori Wings
         </h1>
       </div>
 
