@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
     phone: {
       type: String,
       default: () => `auto_${Date.now()}_${Math.floor(Math.random() * 1000000)}`,

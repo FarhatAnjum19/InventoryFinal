@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const LOGIN_ONLY_USER = String(process.env.LOGIN_ONLY_USER || "").trim();
-const LOGIN_ONLY_PASSWORD = String(process.env.LOGIN_ONLY_PASSWORD || "");
+const LOGIN_ONLY_PASSWORD = String(process.env.LOGIN_ONLY_PASSWORD || "").trim();
 
 function createToken(userId) {
   return jwt.sign({ sub: String(userId) }, process.env.JWT_SECRET, {
@@ -12,13 +12,22 @@ function createToken(userId) {
   });
 }
 
+function buildLoginUserEmail(name) {
+  const safe = String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "");
+  return `${safe || "user"}@inventory.local`;
+}
+
 router.post("/login", async (req, res) => {
   try {
     const { name, password } = req.body || {};
     console.log("POST /api/auth/login body:", { name: name && String(name).slice(0, 50), password: password ? "<redacted>" : "" });
     const inputName = String(name || "").trim();
+    const inputPassword = String(password || "").trim();
 
-    if (!inputName || !password) {
+    if (!inputName || !inputPassword) {
       return res.status(400).json({ success: false, message: "name and password are required" });
     }
 
@@ -30,7 +39,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid username" });
     }
 
-    if (password !== LOGIN_ONLY_PASSWORD) {
+    if (inputPassword !== LOGIN_ONLY_PASSWORD) {
       console.warn(`Login attempt with wrong password for user: ${inputName}`);
       return res.status(401).json({ success: false, message: "Invalid password" });
     }
@@ -39,7 +48,11 @@ router.post("/login", async (req, res) => {
     let user = await User.findOne({ name: new RegExp(`^${LOGIN_ONLY_USER}$`, "i") });
     if (!user) {
       const passwordHash = await bcrypt.hash(LOGIN_ONLY_PASSWORD, 10);
-      user = await User.create({ name: LOGIN_ONLY_USER, passwordHash });
+      user = await User.create({
+        name: LOGIN_ONLY_USER,
+        email: buildLoginUserEmail(LOGIN_ONLY_USER),
+        passwordHash,
+      });
     } else {
       const matched = await bcrypt.compare(LOGIN_ONLY_PASSWORD, user.passwordHash);
       if (!matched) {
